@@ -1,56 +1,67 @@
-# Welcome to your Expo app 👋
+# 📱 RepoDex
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+O **RepoDex** é um aplicativo mobile desenvolvido em React Native e Expo que funciona como um buscador e catálogo pessoal de repositórios do GitHub. Com ele, você pode buscar projetos diretamente da API do GitHub informando o Dono (Owner) e o Nome do Repositório (Repo ID), e salvá-los localmente no seu dispositivo.
 
-## Get started
+Este projeto foi desenvolvido como prática acadêmica da disciplina de Programação para Dispositivos Móveis.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## 🚀 Funcionalidades
 
-2. Start the app
+- **Busca via API:** Integração direta com a [API pública do GitHub](https://docs.github.com/pt/rest) para buscar dados atualizados dos repositórios.
+- **Catálogo Offline:** Salvamento e persistência dos repositórios pesquisados na memória do celular utilizando `AsyncStorage`. Os dados permanecem mesmo após fechar o app.
+- **Listagem Detalhada:** Exibição do nome do projeto, linguagem principal, quantidade de estrelas (_stars_), nome do dono e link do perfil.
+- **Limpeza de Dados:** Opção rápida no cabeçalho (Header) para limpar todo o catálogo salvo.
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## 🛠️ Tecnologias Utilizadas
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- **[React Native](https://reactnative.dev/):** Framework principal para desenvolvimento mobile multiplataforma.
+- **[Expo](https://expo.dev/):** Plataforma e framework que facilita o desenvolvimento e testes no React Native.
+- **[Expo Router](https://docs.expo.dev/router/introduction/):** Roteamento moderno baseado em arquivos (File-based routing).
+- **[TypeScript](https://www.typescriptlang.org/):** Tipagem estática para maior segurança e qualidade do código.
+- **[Axios](https://axios-http.com/):** Cliente HTTP para realizar as requisições à API do GitHub.
+- **[AsyncStorage](https://react-native-async-storage.github.io/async-storage/):** Sistema de armazenamento assíncrono e persistente de dados locais.
 
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+---
 
-## Get a fresh project
+## ⚙️ Como executar o projeto
 
-When you're ready, run:
+Certifique-se de ter o **Node.js** instalado na sua máquina e o aplicativo **Expo Go** no seu celular (ou um emulador Android/iOS configurado).
 
-```bash
-npm run reset-project
-```
+### 1. Clone o repositório
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+\`\`\`bash
+git clone https://github.com/SEU_USUARIO/repodex.git
+cd repodex
+\`\`\`
 
-### Other setup steps
+### 2. Instale as dependências padrão
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+\`\`\`bash
+npm install
+\`\`\`
 
-## Learn more
+### 3. Instale as bibliotecas específicas do projeto
 
-To learn more about developing your project with Expo, look at the following resources:
+\`\`\`bash
+npx expo install axios @react-native-async-storage/async-storage
+\`\`\`
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### 4. Inicie o servidor de desenvolvimento
 
-## Join the community
+\`\`\`bash
+npx expo start
+\`\`\`
 
-Join our community of developers creating universal apps.
+Após iniciar, escaneie o **QR Code** exibido no terminal utilizando o aplicativo Expo Go no seu celular, ou pressione `a` no terminal para rodar diretamente via cabo USB/Emulador Android.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
+
+## 👥 Desenvolvedores
+
+Projeto desenvolvido em dupla para a disciplina de Programação para Dispositivos Móveis:
+
+- **Pedro Henrique Santos de Pontes**
+- **Mateus Roseno**
