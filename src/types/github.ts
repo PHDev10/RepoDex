@@ -1,9 +1,12 @@
 export interface GitHubRepo {
   id: number;
   repoName: string;
-  stars: number;         // Dado 1 do repositório
-  language: string;      // Dado 2 do repositório
+  repoUrl: string;
+  stars: number;
+  language: string | null;
   ownerName: string;
-  ownerAvatar: string;   // Dado 1 do dono do repositório
-  ownerUrl: string;      // Dado 2 do dono do repositório
+  ownerAvatar: string;
+  ownerUrl: string;
+  ownerBio: string | null;
+  ownerReposCount: number;
 }
