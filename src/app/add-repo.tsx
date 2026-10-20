@@ -1,6 +1,5 @@
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter, Stack } from "expo-router";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -13,15 +12,19 @@ import {
   Text,
   TextInput,
   View,
+  useColorScheme,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { api } from "../services/api";
-import { GitHubRepo } from "../types/github";
+import { api } from "@/services/api";
+import { GitHubRepo } from "@/types/github";
 
 const STORAGE_KEY = "@github_repos";
 
 export default function AddRepoScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const isDark = useColorScheme() === "dark";
 
   const [owner, setOwner] = useState("");
   const [repo, setRepo] = useState("");
@@ -47,72 +50,63 @@ export default function AddRepoScreen() {
     setLoading(true);
 
     try {
-      const response = await api.get(
-        `/repos/${encodeURIComponent(ownerId)}/${encodeURIComponent(repoId)}`
+      const repoResponse = await api.get(
+        `/repos/${encodeURIComponent(ownerId)}/${encodeURIComponent(repoId)}`,
       );
+      const repoData = repoResponse.data;
 
-      const data = response.data;
+      const userResponse = await api.get(
+        `/users/${encodeURIComponent(ownerId)}`,
+      );
+      const userData = userResponse.data;
 
       const newRepo: GitHubRepo = {
-        id: data.id,
-        repoName: data.name,
-        stars: data.stargazers_count,
-        language: data.language,
-        ownerName: data.owner.login,
-        ownerAvatar: data.owner.avatar_url,
-        ownerUrl: data.owner.html_url,
+        id: repoData.id,
+        repoName: repoData.name,
+        repoUrl: repoData.html_url,
+        stars: repoData.stargazers_count,
+        language: repoData.language,
+        ownerName: repoData.owner.login,
+        ownerAvatar: repoData.owner.avatar_url,
+        ownerUrl: repoData.owner.html_url,
+        ownerBio: userData.bio,
+        ownerReposCount: userData.public_repos,
       };
 
       const savedData = await AsyncStorage.getItem(STORAGE_KEY);
+      const currentRepos: GitHubRepo[] = savedData ? JSON.parse(savedData) : [];
 
-      const currentRepos: GitHubRepo[] = savedData
-        ? JSON.parse(savedData)
-        : [];
-
-      const alreadyExists = currentRepos.some(
-        (item) => item.id === newRepo.id
-      );
-
+      const alreadyExists = currentRepos.some((item) => item.id === newRepo.id);
       if (alreadyExists) {
         showMessage(
           "Repositório duplicado",
-          "Este repositório já está na sua lista."
+          "Este repositório já está na sua lista.",
         );
         return;
       }
 
       const updatedRepos = [newRepo, ...currentRepos];
-
-      await AsyncStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(updatedRepos)
-      );
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedRepos));
 
       showMessage("Sucesso", "Repositório salvo com sucesso!");
-
       router.back();
     } catch (error: any) {
-      console.error("Erro ao buscar repositório:", error);
+      console.error("Erro ao buscar repositório ou usuário:", error);
 
       if (error.response?.status === 404) {
         showMessage(
           "Não encontrado",
-          "Verifique o ownerid e o repoid. O repositório pode ser privado ou inexistente."
+          "Verifique o ownerid e o repoid. O repositório ou usuário pode não existir.",
         );
       } else if (error.response?.status === 403) {
         showMessage(
           "Limite de consultas",
-          "O GitHub pode ter limitado temporariamente as requisições. Tente novamente mais tarde."
-        );
-      } else if (error.response) {
-        showMessage(
-          "Erro na consulta",
-          `O GitHub retornou o erro HTTP ${error.response.status}.`
+          "O GitHub limitou as requisições. Tente novamente mais tarde.",
         );
       } else {
         showMessage(
           "Erro de conexão",
-          "Não foi possível acessar o GitHub. Verifique sua conexão com a internet."
+          "Não foi possível acessar a API do GitHub. Verifique sua conexão.",
         );
       }
     } finally {
@@ -122,51 +116,61 @@ export default function AddRepoScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, isDark && styles.containerDark]}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <Stack.Screen options={{ title: "Adicionar repositório" }} />
-
       <ScrollView
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[
+          styles.content,
+          { paddingTop: Math.max(insets.top, 20) },
+        ]}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.heading}>Novo repositório</Text>
-
-        <Text style={styles.description}>
+        <Text style={[styles.heading, isDark && styles.headingDark]}>
+          Novo repositório
+        </Text>
+        <Text style={[styles.description, isDark && styles.descriptionDark]}>
           Informe o proprietário e o nome do repositório do GitHub.
         </Text>
 
-        <Text style={styles.label}>Owner ID (dono)</Text>
-
+        <Text style={[styles.label, isDark && styles.labelDark]}>
+          Owner ID (dono)
+        </Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, isDark && styles.inputDark]}
           placeholder="Ex.: facebook"
+          placeholderTextColor={isDark ? "#888" : "#999"}
           value={owner}
           onChangeText={setOwner}
           autoCapitalize="none"
           autoCorrect={false}
           editable={!loading}
-          accessibilityLabel="Owner ID"
         />
 
-        <Text style={styles.label}>Repo ID (repositório)</Text>
-
+        <Text style={[styles.label, isDark && styles.labelDark]}>
+          Repo ID (repositório)
+        </Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, isDark && styles.inputDark]}
           placeholder="Ex.: react"
+          placeholderTextColor={isDark ? "#888" : "#999"}
           value={repo}
           onChangeText={setRepo}
           autoCapitalize="none"
           autoCorrect={false}
           editable={!loading}
-          accessibilityLabel="Repo ID"
         />
 
         {loading ? (
           <View style={styles.loading}>
-            <ActivityIndicator size="large" color="#0366d6" />
-            <Text style={styles.loadingText}>
+            <ActivityIndicator
+              size="large"
+              color={isDark ? "#58a6ff" : "#0366d6"}
+            />
+            <Text
+              style={[styles.loadingText, isDark && styles.loadingTextDark]}
+            >
               Consultando o GitHub...
             </Text>
           </View>
@@ -179,13 +183,8 @@ export default function AddRepoScreen() {
                 onPress={() => router.back()}
               />
             </View>
-
             <View style={styles.buttonWrapper}>
-              <Button
-                title="Adicionar"
-                color="#28a745"
-                onPress={handleAdd}
-              />
+              <Button title="Adicionar" color="#28a745" onPress={handleAdd} />
             </View>
           </View>
         )}
@@ -195,14 +194,13 @@ export default function AddRepoScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
+  container: { flex: 1, backgroundColor: "#fff" },
+  containerDark: { backgroundColor: "#121212" },
   content: {
     flexGrow: 1,
     padding: 20,
-    justifyContent: "center",
+    justifyContent: "flex-start",
+    paddingBottom: 60,
   },
   heading: {
     fontSize: 25,
@@ -210,17 +208,17 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     color: "#0366d6",
   },
-  description: {
-    fontSize: 15,
-    color: "#666",
-    marginBottom: 16,
-  },
+  headingDark: { color: "#58a6ff" },
+  description: { fontSize: 15, color: "#666", marginBottom: 16 },
+  descriptionDark: { color: "#aaa" },
   label: {
     fontSize: 16,
     fontWeight: "bold",
     marginTop: 18,
     marginBottom: 8,
+    color: "#000",
   },
+  labelDark: { color: "#eee" },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
@@ -228,6 +226,12 @@ const styles = StyleSheet.create({
     padding: 12,
     fontSize: 16,
     color: "#222",
+    backgroundColor: "#fafafa",
+  },
+  inputDark: {
+    backgroundColor: "#1e1e1e",
+    borderColor: "#444",
+    color: "#fff",
   },
   buttons: {
     flexDirection: "row",
@@ -235,15 +239,8 @@ const styles = StyleSheet.create({
     gap: 12,
     marginTop: 30,
   },
-  buttonWrapper: {
-    flex: 1,
-  },
-  loading: {
-    alignItems: "center",
-    marginTop: 30,
-    gap: 10,
-  },
-  loadingText: {
-    color: "#555",
-  },
+  buttonWrapper: { flex: 1 },
+  loading: { alignItems: "center", marginTop: 30, gap: 10 },
+  loadingText: { color: "#555" },
+  loadingTextDark: { color: "#aaa" },
 });
